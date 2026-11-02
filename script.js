@@ -6,9 +6,17 @@
 const themeToggle = document.querySelector('.theme-toggle');
 const root = document.documentElement;
 
-// TODO: Check for saved theme preference and apply it
+// Part 4: restore the saved theme on page load.
+const currentTheme = localStorage.getItem('theme') || 'light';
+root.setAttribute('data-theme', currentTheme);
 
-// TODO: Add click event listener to toggle theme
+themeToggle.addEventListener('click', () => {
+    const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    themeToggle.classList.add('spinning');
+});
+themeToggle.addEventListener('animationend', () => themeToggle.classList.remove('spinning'));
 
 // ==========================================
 // SMOOTH SCROLLING FOR NAVIGATION
@@ -23,7 +31,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
 
         if (targetSection) {
             targetSection.scrollIntoView({
-                behavior: 'smooth',
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
                 block: 'start'
             });
         }
@@ -39,9 +47,17 @@ document.querySelectorAll('.nav-link').forEach(link => {
 // TODO: Implement scroll-triggered animations
 // ==========================================
 
-// TODO: Create IntersectionObserver for entrance animations
-
-// TODO: Observe all elements with .animate-on-scroll class
+// Part 3: reveal each section and grid once as it enters the viewport.
+const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+document.querySelectorAll('.animate-on-scroll, .stagger-children').forEach(el => observer.observe(el));
 
 // ==========================================
 // PARALLAX EFFECT
